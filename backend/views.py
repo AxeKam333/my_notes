@@ -10,10 +10,11 @@ def home(request):
     notes = Note.objects.all()
 
     if request.method == "POST":
-        note_id = request.POST.get('note-id')
+        delete_note_id = request.POST.get('delete-note-id')
+        open_note_id = request.POST.get('open-note-id')
 
-        if note_id:
-            note = Note.objects.filter(id=note_id).first()
+        if delete_note_id:
+            note = Note.objects.filter(id=delete_note_id).first()
             if note and (note.author == request.user or request.user.has_perm("backend.delete_note")):
                 note.delete()
 
