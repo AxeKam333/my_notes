@@ -56,7 +56,7 @@ def open_note(request, id):
     else:
         form = NoteForm(instance=note)
 
-    return render(request, 'backend/create_note.html', {"form": form})
+    return render(request, 'backend/open_note.html', {"form": form})
 
 def sign_up(request):
     if request.method == 'POST':
