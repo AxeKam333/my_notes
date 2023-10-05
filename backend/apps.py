@@ -4,7 +4,7 @@ from django.conf import settings
 
 class MainConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'main'
+    name = 'backend'
 
     def ready(self):
         from django.contrib.auth.models import Group

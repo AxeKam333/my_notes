@@ -1,55 +1,40 @@
 from django.shortcuts import render, redirect
-from .forms import RegisterForm, PostForm
+from .forms import RegisterForm, NoteForm
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User, Group
-from .models import Post
+from .models import Note
 
 @login_required(login_url='/login')
 def home(request):
-    posts = Post.objects.all()
+    notes = Note.objects.all()
 
     if request.method == "POST":
-        post_id = request.POST.get('post-id')
-        user_id = request.POST.get('user-id')
+        note_id = request.POST.get('note-id')
 
-        if post_id:
-            post = Post.objects.filter(id=post_id).first()
-            if post and (post.author == request.user or request.user.has_perm("main.delete_post")):
-                post.delete()
-        elif user_id:
-            user = User.objects.filter(id=user_id).first()
-            if user and request.user.is_staff:
-                try:
-                    group = Group.objects.get(name="default")
-                    group.user_set.remove(user)
-                except:
-                    pass
+        if note_id:
+            note = Note.objects.filter(id=note_id).first()
+            if note and (note.author == request.user or request.user.has_perm("backend.delete_note")):
+                note.delete()
 
-                try:
-                    group = Group.objects.get(name="mod")
-                    group.user_set.remove(user)
-                except:
-                    pass
-                
+    notes = [note for note in notes if note.author == request.user]
 
-
-    return render(request, 'main/home.html', {"posts": posts})
+    return render(request, 'backend/home.html', {"notes": notes})
 
 @login_required(login_url='/login')
-@permission_required("main.add_post", login_url='/home', raise_exception=True)
-def create_post(request):
+@permission_required("backend.add_note", login_url='/home', raise_exception=True)
+def create_note(request):
     if request.method == 'POST':
-        form = PostForm(request.POST)
+        form = NoteForm(request.POST)
         if form.is_valid():
-            post = form.save(commit=False)
-            post.author = request.user
-            post.save()
+            note = form.save(commit=False)
+            note.author = request.user
+            note.save()
             return redirect('/home')
     else:
-        form = PostForm()
+        form = NoteForm()
 
-    return render(request, 'main/create_post.html', {"form": form})
+    return render(request, 'backend/create_note.html', {"form": form})
 
 def sign_up(request):
     if request.method == 'POST':
